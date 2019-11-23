@@ -2,12 +2,11 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Webpack = require('webpack')
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const merge = require('webpack-merge')
 const path = require('path')
 
 const isProd = process.env.NODE_ENV === 'production'
-const manifestCacheBust = new Date().getTime()
 const resolveRoot = relativePath => path.resolve(__dirname, relativePath)
 const PATHS = {
   src: resolveRoot('src'),
@@ -23,8 +22,7 @@ const commonWebpackProps = {
   },
   output: {
     path: PATHS.dist,
-    chunkFilename: '[name].[chunkhash:10].js',
-    publicPath: '/',
+    chunkFilename: '[name].js',
     crossOriginLoading: 'anonymous'
   },
   plugins: [
@@ -67,55 +65,17 @@ const commonWebpackProps = {
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
       }
     ]
-  },
-  optimization: {
-    namedModules: true,
-    minimizer: [
-      new UglifyJSPlugin({
-        cache: true,
-        parallel: 4,
-        uglifyOptions: {
-          warnings: false,
-          compress: {
-            warnings: false,
-            keep_fnames: true,
-            unused: false
-          },
-          mangle: {
-            keep_fnames: true
-          },
-          nameCache: null,
-          toplevel: false,
-          ie8: false
-        }
-      })
-    ],
-    concatenateModules: isProd,
-    runtimeChunk: {
-      name: `manifest.${manifestCacheBust}`
-    },
-    splitChunks: {
-      cacheGroups: {
-        default: {
-          chunks: 'initial',
-          name: 'app',
-          priority: -20,
-          reuseExistingChunk: true
-        },
-        vendor: {
-          chunks: 'initial',
-          name: 'vendor',
-          priority: -10
-        }
-      }
-    }
   }
 }
 
 // export config
 if (isProd) {
   webpackConfig = merge(commonWebpackProps, {
-    mode: 'production'
+    mode: 'production',
+    optimization: {
+      minimize: true,
+      minimizer: [new TerserPlugin()]
+    }
   })
 } else {
   webpackConfig = merge(commonWebpackProps, {
