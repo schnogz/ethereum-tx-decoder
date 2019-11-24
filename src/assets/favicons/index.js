@@ -1,4 +1,4 @@
-require('./favicons/favicon.ico')
-require('./favicons/favicon-16x16.png')
-require('./favicons/favicon-32x32.png')
-require('./favicons/browserconfig.xml')
+require('./favicon.ico')
+require('./favicon-16x16.png')
+require('./favicon-32x32.png')
+require('./browserconfig.xml')

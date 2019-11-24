@@ -54,14 +54,14 @@ export default () => {
       <CssBaseline />
       <AppBar position='static'>
         <Toolbar>
-          <Typography variant='h6'>Ethereum Tx Decoder</Typography>
+          <Typography variant='h6'>Ethereum Transaction Decoder</Typography>
         </Toolbar>
       </AppBar>
       <div>
         <Container maxWidth='md'>
           <Form
             onSubmit={onSubmit}
-            render={({ handleSubmit, reset, submitting, pristine, values, valid }) => (
+            render={({ handleSubmit, submitting, valid }) => (
               <Box className={classes.box}>
                 <form onSubmit={handleSubmit}>
                   <Field name='rawTx' validate={composeValidators(required)}>
