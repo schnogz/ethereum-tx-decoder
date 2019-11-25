@@ -3,7 +3,8 @@ import { Field, Form } from 'react-final-form'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
 import Brightness7Icon from '@material-ui/icons/Brightness7'
 import { makeStyles } from '@material-ui/core/styles'
-import { AppBar ,
+import {
+  AppBar,
   Box,
   Button,
   Container,
@@ -16,7 +17,6 @@ import { AppBar ,
   Toolbar,
   Typography
 } from '@material-ui/core'
-
 
 import { decodeTx } from './utils/decodeTx'
 import { darkTheme, lightTheme } from './theme'
@@ -33,11 +33,17 @@ const useStyles = makeStyles(theme => ({
     marginTop: '10px',
     marginBottom: '20px'
   },
+  error: {
+    color: '#FF647C',
+    fontSize: '11px',
+    marginTop: '-4px'
+  },
   grow: {
     flexGrow: 1
   },
   paper: {
     marginTop: '20px',
+    overflowX: 'scroll',
     padding: '10px',
     width: '800px'
   },
@@ -48,11 +54,11 @@ const useStyles = makeStyles(theme => ({
 
 const composeValidators = (...validators) => value =>
   validators.reduce((error, validator) => error || validator(value), undefined)
-const required = value => (value ? undefined : 'Required')
+const required = value => (value ? undefined : '* Required')
 
 export default () => {
   const classes = useStyles()
-  const [tx, setTx] = useState()
+  const [decodedTx, setTx] = useState()
   const [isDarkMode, setIsDarkMode] = useState(false)
   const onSubmit = values => {
     setTx(decodeTx(values.rawTx))
@@ -70,7 +76,7 @@ export default () => {
             title='Toggle dark/light modes'
             onClick={() => setIsDarkMode(!isDarkMode)}
           >
-            {isDarkMode ? <Brightness4Icon /> : <Brightness7Icon />}
+            {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -89,12 +95,16 @@ export default () => {
                           className={classes.textField}
                           label='Raw Hex'
                           multiline
-                          rows='4'
+                          rows='3'
                           placeholder='Enter raw transaction hex'
                           margin='normal'
                           variant='outlined'
                         />
-                        {meta.error && meta.touched && <span>{meta.error}</span>}
+                        {meta.error && meta.touched && (
+                          <div className={classes.error} color='error'>
+                            {meta.error}
+                          </div>
+                        )}
                       </div>
                     )}
                   </Field>
@@ -114,12 +124,12 @@ export default () => {
               </Box>
             )}
           />
-          {tx && (
+          {decodedTx && (
             <>
               <Divider variant='middle' />
               <Box className={classes.box}>
                 <Paper className={classes.paper}>
-                  <pre>{JSON.stringify(tx, 0, 2)}</pre>
+                  <pre>{JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx.err, 0, 2)}</pre>
                 </Paper>
               </Box>
             </>

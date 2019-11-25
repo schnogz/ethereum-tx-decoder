@@ -1,5 +1,17 @@
 import { createMuiTheme } from '@material-ui/core/styles'
 
+const typography = {
+  fontFamily: 'Inter',
+  fontSize: 14,
+  fontWeightLight: 400,
+  fontWeightRegular: 500,
+  fontWeightMedium: 600,
+  button: {
+    fontWeight: 600,
+    textTransform: 'none'
+  }
+}
+
 export const lightTheme = createMuiTheme({
   palette: {
     background: {
@@ -15,10 +27,6 @@ export const lightTheme = createMuiTheme({
     secondary: {
       main: '#47E8A4',
       light: '#AFFCDC'
-    },
-    error: {
-      main: '#FF647C',
-      light: '#FDAFBB'
     }
   },
   overrides: {
@@ -43,21 +51,18 @@ export const lightTheme = createMuiTheme({
     MuiInputBase: {
       root: {
         backgroundColor: '#fff',
-        borderRadius: 4
+        borderRadius: 4,
+        fontSize: '14px'
+      }
+    },
+    MuiPaper: {
+      root: {
+        fontSize: '14px',
+        fontWeight: 500
       }
     }
   },
-  typography: {
-    fontFamily: 'Inter',
-    fontSize: 14,
-    fontWeightLight: 400,
-    fontWeightRegular: 500,
-    fontWeightMedium: 600,
-    button: {
-      fontWeight: 600,
-      textTransform: 'none'
-    }
-  }
+  typography
 })
 
 export const darkTheme = createMuiTheme({
@@ -75,10 +80,6 @@ export const darkTheme = createMuiTheme({
     secondary: {
       main: '#47E8A4',
       light: '#AFFCDC'
-    },
-    error: {
-      main: '#FF647C',
-      light: '#FDAFBB'
     }
   },
   overrides: {
@@ -105,24 +106,27 @@ export const darkTheme = createMuiTheme({
     MuiInputBase: {
       root: {
         backgroundColor: '#333',
-        borderRadius: 4
+        borderRadius: 4,
+        fontSize: '14px'
       }
     },
     MuiOutlinedInput: {
       inputMultiline: {
         color: '#fff'
       }
+    },
+    MuiDivider: {
+      root: {
+        backgroundColor: '#333'
+      }
+    },
+    MuiPaper: {
+      root: {
+        color: '#fff',
+        fontSize: '14px',
+        fontWeight: 500
+      }
     }
   },
-  typography: {
-    fontFamily: 'Inter',
-    fontSize: 14,
-    fontWeightLight: 400,
-    fontWeightRegular: 500,
-    fontWeightMedium: 600,
-    button: {
-      fontWeight: 600,
-      textTransform: 'none'
-    }
-  }
+  typography
 })
