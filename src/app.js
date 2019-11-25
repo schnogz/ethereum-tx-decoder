@@ -187,7 +187,7 @@ export default () => {
                 onCopy={() => setIsDataCopied(true)}
                 text={JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx.err)}
               >
-                <Button color='secondary' variant='contained'>
+                <Button color='primary' variant='contained'>
                   Copy
                 </Button>
               </CopyToClipboard>
