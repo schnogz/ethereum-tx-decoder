@@ -1,19 +1,23 @@
 import React, { useState } from 'react'
 import { Field, Form } from 'react-final-form'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import QRCode from 'qrcode.react'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
 import Brightness7Icon from '@material-ui/icons/Brightness7'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   AppBar,
+  Backdrop,
   Box,
   Button,
   Container,
   CssBaseline,
   Divider,
   Fab,
+  Fade,
   IconButton,
+  Modal,
   MuiThemeProvider,
   Paper,
   Snackbar,
@@ -57,6 +61,24 @@ const useStyles = makeStyles(theme => ({
   grow: {
     flexGrow: 1
   },
+  modal: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  modalContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    padding: '14px'
+  },
+  modalEthAddr: {
+    fontSize: '11px',
+    margin: '12px 0'
+  },
   paper: {
     marginTop: '20px',
     overflowX: 'scroll',
@@ -84,7 +106,10 @@ export default () => {
   const classes = useStyles()
   const [decodedTx, setTx] = useState()
   const [isDarkMode, setIsDarkMode] = useState(true)
-  const [dataCopied, setDataCopied] = React.useState(false)
+  const [isDataCopied, setIsDataCopied] = React.useState(false)
+  const [isEthAddrCopied, setIsEthAddrCopied] = React.useState(false)
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const ethDonateAddr = '0x2c015c09c4ce9eebc4ff1f9bbdd189e0f05b922f'
 
   const onSubmit = values => {
     setTx(decodeTx(values.rawTx))
@@ -159,7 +184,7 @@ export default () => {
             </Box>
             <Box className={classes.copyContainer}>
               <CopyToClipboard
-                onCopy={() => setDataCopied(true)}
+                onCopy={() => setIsDataCopied(true)}
                 text={JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx.err)}
               >
                 <Button color='secondary' variant='contained'>
@@ -172,7 +197,7 @@ export default () => {
         <div className={classes.grow} />
       </Container>
       <div className={classes.donate}>
-        <Fab color='secondary' variant='extended' size='small'>
+        <Fab color='secondary' onClick={() => setIsModalOpen(true)} variant='extended' size='small'>
           Donate ETH
         </Fab>
       </div>
@@ -180,8 +205,11 @@ export default () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         autoHideDuration={1500}
         className={classes.snackbar}
-        open={dataCopied}
-        onClose={() => setDataCopied(false)}
+        open={isDataCopied || isEthAddrCopied}
+        onClose={() => {
+          setIsDataCopied(false)
+          setIsEthAddrCopied(false)
+        }}
         message={
           <span className={classes.snackbarMessage}>
             <CheckCircleIcon className={classes.snackbarIcon} />
@@ -189,6 +217,26 @@ export default () => {
           </span>
         }
       />
+      <Modal
+        className={classes.modal}
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{ timeout: 500 }}
+      >
+        <Fade in={isModalOpen}>
+          <div className={classes.modalContent}>
+            <QRCode size={200} value={ethDonateAddr} />
+            <div className={classes.modalEthAddr}>{ethDonateAddr}</div>
+            <CopyToClipboard onCopy={() => setIsEthAddrCopied(true)} text={ethDonateAddr}>
+              <Button size='small' color='primary' variant='contained'>
+                Copy Address
+              </Button>
+            </CopyToClipboard>
+          </div>
+        </Fade>
+      </Modal>
     </MuiThemeProvider>
   )
 }
