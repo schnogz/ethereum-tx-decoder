@@ -109,7 +109,7 @@ export default () => {
   const [isDataCopied, setIsDataCopied] = React.useState(false)
   const [isEthAddrCopied, setIsEthAddrCopied] = React.useState(false)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const ethDonateAddr = '0x2c015c09c4ce9eebc4ff1f9bbdd189e0f05b922f'
+  const ethDonateAddr = '0xb3AfF6C7d10BdD704E3B44f74974208C34BAD7de'
 
   const onSubmit = values => {
     setTx(decodeTx(values.rawTx))
