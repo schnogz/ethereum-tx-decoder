@@ -43,6 +43,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: '10px',
     marginBottom: '20px'
   },
+  copyButton: {
+    width: '125px'
+  },
   copyContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -123,7 +126,6 @@ const useStyles = makeStyles(theme => ({
 
 const composeValidators = (...validators) => value =>
   validators.reduce((error, validator) => error || validator(value), undefined)
-const required = value => (value ? undefined : '* Required')
 
 export default () => {
   const classes = useStyles()
@@ -205,7 +207,10 @@ export default () => {
           render={({ handleSubmit, submitting, valid }) => (
             <Box className={classes.box}>
               <form onSubmit={handleSubmit} className={classes.form}>
-                <Field name='rawTxOrTxHex' validate={composeValidators(required)}>
+                <Field
+                  name='rawTxOrTxHex'
+                  validate={composeValidators(value => (value ? undefined : '* Required Field'))}
+                >
                   {({ input, meta }) => (
                     <div>
                       <TextField
@@ -264,7 +269,7 @@ export default () => {
                     onCopy={() => setIsDataCopied(true)}
                     text={JSON.stringify(txOverview)}
                   >
-                    <Button color='secondary' variant='contained'>
+                    <Button color='secondary' className={classes.copyButton} variant='contained'>
                       Copy Data
                     </Button>
                   </CopyToClipboard>
@@ -287,7 +292,7 @@ export default () => {
                     onCopy={() => setIsDataCopied(true)}
                     text={JSON.stringify(txHex)}
                   >
-                    <Button color='secondary' variant='contained'>
+                    <Button color='secondary' className={classes.copyButton} variant='contained'>
                       Copy Data
                     </Button>
                   </CopyToClipboard>
@@ -311,7 +316,7 @@ export default () => {
                       onCopy={() => setIsDataCopied(true)}
                       text={JSON.stringify(decodedTx.tx)}
                     >
-                      <Button color='secondary' variant='contained'>
+                      <Button color='secondary' className={classes.copyButton} variant='contained'>
                         Copy Data
                       </Button>
                     </CopyToClipboard>

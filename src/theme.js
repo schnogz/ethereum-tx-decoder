@@ -64,6 +64,11 @@ export const lightTheme = createMuiTheme({
         fontSize: '14px',
         fontWeight: 500
       }
+    },
+    MuiTypography: {
+      root: {
+        color: '#121212'
+      }
     }
   },
   typography
@@ -129,6 +134,11 @@ export const darkTheme = createMuiTheme({
         color: '#fff',
         fontSize: '14px',
         fontWeight: 500
+      }
+    },
+    MuiTypography: {
+      root: {
+        color: '#fff'
       }
     }
   },
