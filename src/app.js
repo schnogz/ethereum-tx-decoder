@@ -26,15 +26,17 @@ import {
   Typography
 } from '@material-ui/core'
 
-import { decodeTx } from './utils/decodeTx'
+import { fetchEthTxByHash } from './utils/api'
+import { decodeEthHexTx, ethTxToHex } from './utils/eth'
 import { darkTheme, lightTheme } from './theme'
 
 const useStyles = makeStyles(theme => ({
   box: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignContent: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    color: 'white'
   },
   button: {
     width: '300px',
@@ -47,11 +49,6 @@ const useStyles = makeStyles(theme => ({
     alignContent: 'center',
     justifyContent: 'center',
     marginTop: '15px'
-  },
-  donate: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20
   },
   error: {
     color: '#FF647C',
@@ -104,7 +101,10 @@ const required = value => (value ? undefined : '* Required')
 
 export default () => {
   const classes = useStyles()
-  const [decodedTx, setTx] = useState()
+  const [unrecognizedInput, setUnrecognizedInput] = useState(false)
+  const [txOverview, setTxOverview] = useState(null)
+  const [txHex, setTxHex] = useState(null)
+  const [decodedTx, setTx] = useState(null)
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [isDataCopied, setIsDataCopied] = React.useState(false)
   const [isEthAddrCopied, setIsEthAddrCopied] = React.useState(false)
@@ -112,7 +112,40 @@ export default () => {
   const ethDonateAddr = '0xb3AfF6C7d10BdD704E3B44f74974208C34BAD7de'
 
   const onSubmit = values => {
-    setTx(decodeTx(values.rawTx))
+    setUnrecognizedInput(false)
+    setTx(null)
+    setTxHex(null)
+    setTxOverview(null)
+    fetchEthTxByHash(values.rawTxOrTxHex)
+      .then(res => {
+        res.json().then(data => {
+          // check for valid tx hash
+          if (data.error) {
+            // invalid tx hash
+            const txHex = decodeEthHexTx(values.rawTxOrTxHex)
+            if (txHex.error) {
+              // invalid tx hash and tx hex
+              return setUnrecognizedInput(true)
+            } else {
+              // valid tx hex
+              setTxHex({
+                error: 'ETH transaction hash not detected'
+              })
+              setTx(decodeEthHexTx(values.rawTxOrTxHex))
+            }
+          } else {
+            // valid tx hash
+            const rawTxHex = ethTxToHex(data.result)
+            setTxOverview(data.result)
+            setTxHex(rawTxHex)
+            setTx(decodeEthHexTx(rawTxHex))
+          }
+        })
+      })
+      .catch(() => {
+        setTxHex(null)
+        setTx(null)
+      })
   }
   return (
     <MuiThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
@@ -129,6 +162,15 @@ export default () => {
           >
             {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
+          <Fab
+            color='secondary'
+            onClick={() => setIsModalOpen(true)}
+            variant='extended'
+            size='small'
+            style={{ marginLeft: '10px' }}
+          >
+            Donate ETH
+          </Fab>
         </Toolbar>
       </AppBar>
       <Container maxWidth='md'>
@@ -137,16 +179,16 @@ export default () => {
           render={({ handleSubmit, submitting, valid }) => (
             <Box className={classes.box}>
               <form onSubmit={handleSubmit}>
-                <Field name='rawTx' validate={composeValidators(required)}>
+                <Field name='rawTxOrTxHex' validate={composeValidators(required)}>
                   {({ input, meta }) => (
                     <div>
                       <TextField
                         {...input}
                         className={classes.textField}
-                        label='Raw Hex'
+                        label='Enter Ethereum Tx Hash or Raw Tx Hex'
                         multiline
                         rows='3'
-                        placeholder='Enter raw transaction hex'
+                        placeholder='Enter Ethereum Tx Hash or Raw Tx Hex'
                         margin='normal'
                         variant='outlined'
                       />
@@ -174,18 +216,53 @@ export default () => {
             </Box>
           )}
         />
-        {decodedTx && (
+        {unrecognizedInput && (
           <>
             <Divider variant='middle' />
             <Box className={classes.box}>
               <Paper className={classes.paper}>
-                <pre>{JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx.err, 0, 2)}</pre>
+                <pre>
+                  {JSON.stringify({ error: 'Input is not ETH tx hash or raw tx hex' }, 0, 2)}
+                </pre>
+              </Paper>
+            </Box>
+          </>
+        )}
+        {txOverview && (
+          <>
+            <Divider variant='middle' />
+            <Box className={classes.box}>
+              <p>Transaction Overview</p>
+              <Paper className={classes.paper}>
+                <pre>{JSON.stringify(txOverview, 0, 2)}</pre>
+              </Paper>
+            </Box>
+          </>
+        )}
+        {txHex && (
+          <>
+            <Divider variant='middle' />
+            <Box className={classes.box}>
+              <p>Raw Transaction Hex</p>
+              <Paper className={classes.paper}>
+                <pre>{JSON.stringify(txHex, 0, 2)}</pre>
+              </Paper>
+            </Box>
+          </>
+        )}
+        {decodedTx && (
+          <>
+            <Divider variant='middle' />
+            <Box className={classes.box}>
+              <p>Decoded Transaction Data</p>
+              <Paper className={classes.paper}>
+                <pre>{JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx, 0, 2)}</pre>
               </Paper>
             </Box>
             <Box className={classes.copyContainer}>
               <CopyToClipboard
                 onCopy={() => setIsDataCopied(true)}
-                text={JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx.err)}
+                text={JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx)}
               >
                 <Button color='primary' variant='contained'>
                   Copy
@@ -196,11 +273,6 @@ export default () => {
         )}
         <div className={classes.grow} />
       </Container>
-      <div className={classes.donate}>
-        <Fab color='secondary' onClick={() => setIsModalOpen(true)} variant='extended' size='small'>
-          Donate ETH
-        </Fab>
-      </div>
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         autoHideDuration={1500}

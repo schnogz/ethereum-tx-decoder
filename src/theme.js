@@ -21,13 +21,11 @@ export const lightTheme = createMuiTheme({
     type: 'light',
     primary: {
       dark: '#3F3356',
-      light: '#A5AFFB',
       main: '#6979F8'
     },
     secondary: {
-      dark: '#139a62',
-      light: '#AFFCDC',
-      main: '#47E8A4'
+      dark: '#118856',
+      main: '#139a62'
     }
   },
   overrides: {
@@ -58,7 +56,7 @@ export const lightTheme = createMuiTheme({
     },
     MuiFab: {
       label: {
-        color: '#444'
+        color: '#fff'
       }
     },
     MuiPaper: {
@@ -80,13 +78,11 @@ export const darkTheme = createMuiTheme({
     type: 'light',
     primary: {
       dark: '#3F3356',
-      light: '#A5AFFB',
       main: '#6979F8'
     },
     secondary: {
-      dark: '#139a62',
-      main: '#47E8A4',
-      light: '#AFFCDC'
+      dark: '#118856',
+      main: '#139a62'
     }
   },
   overrides: {

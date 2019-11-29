@@ -1,8 +1,9 @@
 import { ethers } from 'ethers'
+import { propOr } from 'ramda'
 
-export const decodeTx = raw_tx => {
+export const decodeEthHexTx = rawHexTx => {
   try {
-    const decoded_tx = ethers.utils.RLP.decode(raw_tx)
+    const decodedTx = ethers.utils.RLP.decode(rawHexTx)
     let [
       raw_nonce,
       raw_gasPrice,
@@ -13,7 +14,7 @@ export const decodeTx = raw_tx => {
       raw_v,
       raw_r,
       raw_s
-    ] = decoded_tx
+    ] = decodedTx
 
     let tx = {
       nonce: ethers.utils.bigNumberify(raw_nonce).toNumber(),
@@ -32,6 +33,23 @@ export const decodeTx = raw_tx => {
     }
     return { tx }
   } catch (err) {
-    return { err }
+    return {
+      error: `${err.code} ${err.reason}`
+    }
   }
+}
+
+export const ethTxToHex = tx => {
+  const nilHex = '0x0'
+  return ethers.utils.RLP.encode([
+    propOr(nilHex, 'nonce', tx),
+    propOr(nilHex, 'gasPrice', tx),
+    propOr(nilHex, 'gas', tx),
+    propOr(nilHex, 'to', tx),
+    propOr(nilHex, 'value', tx),
+    propOr(nilHex, 'input', tx),
+    propOr(nilHex, 'v', tx),
+    propOr(nilHex, 'r', tx),
+    propOr(nilHex, 's', tx)
+  ])
 }
