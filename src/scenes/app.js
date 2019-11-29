@@ -1,36 +1,29 @@
 import React, { useState } from 'react'
 import { Field, Form } from 'react-final-form'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import QRCode from 'qrcode.react'
-import Brightness4Icon from '@material-ui/icons/Brightness4'
-import Brightness7Icon from '@material-ui/icons/Brightness7'
-import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+
 import ErrorIcon from '@material-ui/icons/Error'
 import { makeStyles } from '@material-ui/core/styles'
 import {
-  AppBar,
-  Backdrop,
   Box,
   Button,
   Container,
   CssBaseline,
   Divider,
-  Fade,
-  IconButton,
-  Modal,
   MuiThemeProvider,
   Paper,
-  Snackbar,
   TextField,
-  Toolbar,
   Typography
 } from '@material-ui/core'
 
-import { fetchEthTxByHash } from './utils/api'
-import { decodeEthHexTx, ethTxToHex } from './utils/eth'
-import { darkTheme, lightTheme } from './theme'
+import { fetchEthTxByHash } from '../utils/api'
+import { decodeEthHexTx, ethTxToHex } from '../utils/eth'
+import { darkTheme, lightTheme } from '../components/theme'
+import Header from '../components/header'
+import Alerts from '../components/alerts'
+import Modal from '../components/modal'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   box: {
     display: 'flex',
     flexDirection: 'row',
@@ -70,27 +63,6 @@ const useStyles = makeStyles(theme => ({
   form: {
     width: '100%'
   },
-  grow: {
-    flexGrow: 1
-  },
-  modal: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  modalContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    padding: '14px'
-  },
-  modalEthAddr: {
-    fontSize: '11px',
-    margin: '12px 0'
-  },
   dataContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -113,14 +85,6 @@ const useStyles = makeStyles(theme => ({
   },
   mainContainer: {
     paddingTop: '15px'
-  },
-  snackbarMessage: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  snackbarIcon: {
-    color: '#139a62',
-    marginRight: '8px'
   }
 }))
 
@@ -178,29 +142,11 @@ export default () => {
   return (
     <MuiThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <CssBaseline />
-      <AppBar position='static'>
-        <Toolbar>
-          <Typography variant='h6'>Ethereum Transaction Decoder</Typography>
-          <div className={classes.grow} />
-          <IconButton
-            aria-label='Toggle dark/light modes'
-            color='inherit'
-            title='Toggle dark/light modes'
-            onClick={() => setIsDarkMode(!isDarkMode)}
-          >
-            {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-          <Button
-            color='secondary'
-            onClick={() => setIsModalOpen(true)}
-            variant='contained'
-            size='small'
-            style={{ marginLeft: '10px' }}
-          >
-            Donate ETH
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <Header
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        setIsModalOpen={setIsModalOpen}
+      />
       <Container className={classes.mainContainer} maxWidth='lg'>
         <Form
           onSubmit={onSubmit}
@@ -329,44 +275,19 @@ export default () => {
             </Box>
           </>
         )}
-        <div className={classes.grow} />
       </Container>
-      <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        autoHideDuration={1500}
-        className={classes.snackbar}
-        open={isDataCopied || isEthAddrCopied}
-        onClose={() => {
-          setIsDataCopied(false)
-          setIsEthAddrCopied(false)
-        }}
-        message={
-          <span className={classes.snackbarMessage}>
-            <CheckCircleIcon className={classes.snackbarIcon} />
-            Data copied!
-          </span>
-        }
+      <Alerts
+        isDataCopied={isDataCopied}
+        isEthAddrCopied={isEthAddrCopied}
+        setIsDataCopied={setIsDataCopied}
+        setIsEthAddrCopied={setIsEthAddrCopied}
       />
       <Modal
-        className={classes.modal}
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{ timeout: 500 }}
-      >
-        <Fade in={isModalOpen}>
-          <div className={classes.modalContent}>
-            <QRCode size={200} value={ethDonateAddr} />
-            <div className={classes.modalEthAddr}>{ethDonateAddr}</div>
-            <CopyToClipboard onCopy={() => setIsEthAddrCopied(true)} text={ethDonateAddr}>
-              <Button size='small' color='primary' variant='contained'>
-                Copy Address
-              </Button>
-            </CopyToClipboard>
-          </div>
-        </Fade>
-      </Modal>
+        isModalOpen={isModalOpen}
+        ethDonateAddr={ethDonateAddr}
+        setIsEthAddrCopied={setIsEthAddrCopied}
+        setIsModalOpen={setIsModalOpen}
+      />
     </MuiThemeProvider>
   )
 }
