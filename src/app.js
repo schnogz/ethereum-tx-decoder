@@ -14,7 +14,6 @@ import {
   Container,
   CssBaseline,
   Divider,
-  Fab,
   Fade,
   IconButton,
   Modal,
@@ -33,7 +32,7 @@ import { darkTheme, lightTheme } from './theme'
 const useStyles = makeStyles(theme => ({
   box: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
     color: 'white'
@@ -54,6 +53,9 @@ const useStyles = makeStyles(theme => ({
     color: '#FF647C',
     fontSize: '11px',
     marginTop: '-4px'
+  },
+  form: {
+    width: '100%'
   },
   grow: {
     flexGrow: 1
@@ -76,11 +78,28 @@ const useStyles = makeStyles(theme => ({
     fontSize: '11px',
     margin: '12px 0'
   },
-  paper: {
-    marginTop: '20px',
+  dataContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'space-between',
+    padding: '30px 20px',
+    width: '100%'
+  },
+  dataOverviewContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    minWidth: '220px',
+    marginRight: '25px'
+  },
+  dataRespContainer: {
     overflowX: 'scroll',
     padding: '10px',
-    width: '800px'
+    flexGrow: 2
+  },
+  mainContainer: {
+    paddingTop: '15px'
   },
   snackbarMessage: {
     display: 'flex',
@@ -89,9 +108,6 @@ const useStyles = makeStyles(theme => ({
   snackbarIcon: {
     color: '#139a62',
     marginRight: '8px'
-  },
-  textField: {
-    width: '800px'
   }
 }))
 
@@ -162,32 +178,30 @@ export default () => {
           >
             {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
-          <Fab
+          <Button
             color='secondary'
             onClick={() => setIsModalOpen(true)}
-            variant='extended'
+            variant='contained'
             size='small'
             style={{ marginLeft: '10px' }}
           >
             Donate ETH
-          </Fab>
+          </Button>
         </Toolbar>
       </AppBar>
-      <Container maxWidth='md'>
+      <Container className={classes.mainContainer} maxWidth='lg'>
         <Form
           onSubmit={onSubmit}
           render={({ handleSubmit, submitting, valid }) => (
             <Box className={classes.box}>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className={classes.form}>
                 <Field name='rawTxOrTxHex' validate={composeValidators(required)}>
                   {({ input, meta }) => (
                     <div>
                       <TextField
                         {...input}
-                        className={classes.textField}
+                        className={classes.form}
                         label='Enter Ethereum Tx Hash or Raw Tx Hex'
-                        multiline
-                        rows='3'
                         placeholder='Enter Ethereum Tx Hash or Raw Tx Hex'
                         margin='normal'
                         variant='outlined'
@@ -220,7 +234,7 @@ export default () => {
           <>
             <Divider variant='middle' />
             <Box className={classes.box}>
-              <Paper className={classes.paper}>
+              <Paper>
                 <pre>
                   {JSON.stringify({ error: 'Input is not ETH tx hash or raw tx hex' }, 0, 2)}
                 </pre>
@@ -232,10 +246,22 @@ export default () => {
           <>
             <Divider variant='middle' />
             <Box className={classes.box}>
-              <p>Transaction Overview</p>
-              <Paper className={classes.paper}>
-                <pre>{JSON.stringify(txOverview, 0, 2)}</pre>
-              </Paper>
+              <div className={classes.dataContainer}>
+                <div className={classes.dataOverviewContainer}>
+                  <Typography variant='h6'>Tx Overview</Typography>
+                  <CopyToClipboard
+                    onCopy={() => setIsDataCopied(true)}
+                    text={JSON.stringify(txOverview)}
+                  >
+                    <Button color='secondary' variant='contained'>
+                      Copy Data
+                    </Button>
+                  </CopyToClipboard>
+                </div>
+                <Paper className={classes.dataRespContainer}>
+                  <pre>{JSON.stringify(txOverview, 0, 2)}</pre>
+                </Paper>
+              </div>
             </Box>
           </>
         )}
@@ -243,10 +269,22 @@ export default () => {
           <>
             <Divider variant='middle' />
             <Box className={classes.box}>
-              <p>Raw Transaction Hex</p>
-              <Paper className={classes.paper}>
-                <pre>{JSON.stringify(txHex, 0, 2)}</pre>
-              </Paper>
+              <div className={classes.dataContainer}>
+                <div className={classes.dataOverviewContainer}>
+                  <Typography variant='h6'>Raw Tx Hex</Typography>
+                  <CopyToClipboard
+                    onCopy={() => setIsDataCopied(true)}
+                    text={JSON.stringify(txHex)}
+                  >
+                    <Button color='secondary' variant='contained'>
+                      Copy Data
+                    </Button>
+                  </CopyToClipboard>
+                </div>
+                <Paper className={classes.dataRespContainer}>
+                  <pre>{JSON.stringify(txHex, 0, 2)}</pre>
+                </Paper>
+              </div>
             </Box>
           </>
         )}
@@ -254,20 +292,24 @@ export default () => {
           <>
             <Divider variant='middle' />
             <Box className={classes.box}>
-              <p>Decoded Transaction Data</p>
-              <Paper className={classes.paper}>
-                <pre>{JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx, 0, 2)}</pre>
-              </Paper>
-            </Box>
-            <Box className={classes.copyContainer}>
-              <CopyToClipboard
-                onCopy={() => setIsDataCopied(true)}
-                text={JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx)}
-              >
-                <Button color='primary' variant='contained'>
-                  Copy
-                </Button>
-              </CopyToClipboard>
+              <div className={classes.dataContainer}>
+                <div className={classes.dataOverviewContainer}>
+                  <Typography variant='h6'>Raw Tx Hex Decoded</Typography>
+                  {decodedTx.tx && (
+                    <CopyToClipboard
+                      onCopy={() => setIsDataCopied(true)}
+                      text={JSON.stringify(decodedTx.tx)}
+                    >
+                      <Button color='secondary' variant='contained'>
+                        Copy Data
+                      </Button>
+                    </CopyToClipboard>
+                  )}
+                </div>
+                <Paper className={classes.dataRespContainer}>
+                  <pre>{JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx, 0, 2)}</pre>
+                </Paper>
+              </div>
             </Box>
           </>
         )}

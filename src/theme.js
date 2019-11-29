@@ -42,6 +42,11 @@ export const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiDivider: {
+      root: {
+        height: '2px'
+      }
+    },
     MuiFormLabel: {
       root: {
         fontWeight: 500
@@ -52,11 +57,6 @@ export const lightTheme = createMuiTheme({
         backgroundColor: '#fff',
         borderRadius: 4,
         fontSize: '14px'
-      }
-    },
-    MuiFab: {
-      label: {
-        color: '#fff'
       }
     },
     MuiPaper: {
@@ -100,6 +100,12 @@ export const darkTheme = createMuiTheme({
         }
       }
     },
+    MuiDivider: {
+      root: {
+        backgroundColor: '#666',
+        height: '2px'
+      }
+    },
     MuiFormLabel: {
       root: {
         fontWeight: 500,
@@ -114,17 +120,7 @@ export const darkTheme = createMuiTheme({
       }
     },
     MuiOutlinedInput: {
-      inputMultiline: {
-        color: '#fff'
-      }
-    },
-    MuiDivider: {
-      root: {
-        backgroundColor: '#333'
-      }
-    },
-    MuiFab: {
-      label: {
+      input: {
         color: '#fff'
       }
     },
