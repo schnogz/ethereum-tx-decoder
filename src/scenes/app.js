@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Field, Form } from 'react-final-form'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import ErrorIcon from '@material-ui/icons/Error'
 import { makeStyles } from '@material-ui/core/styles'
@@ -11,7 +10,6 @@ import {
   CssBaseline,
   Divider,
   MuiThemeProvider,
-  Paper,
   TextField,
   Typography
 } from '@material-ui/core'
@@ -19,9 +17,7 @@ import {
 import { fetchEthTxByHash } from '../utils/api'
 import { decodeEthHexTx, ethTxToHex } from '../utils/eth'
 import { darkTheme, lightTheme } from '../components/theme'
-import Header from '../components/header'
-import Alerts from '../components/alerts'
-import Modal from '../components/modal'
+import { Alerts, DataSection, Header, Modal } from '../components'
 
 const useStyles = makeStyles(() => ({
   box: {
@@ -30,21 +26,6 @@ const useStyles = makeStyles(() => ({
     alignContent: 'center',
     justifyContent: 'center',
     color: 'white'
-  },
-  button: {
-    width: '300px',
-    marginTop: '10px',
-    marginBottom: '20px'
-  },
-  copyButton: {
-    width: '125px'
-  },
-  copyContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignContent: 'center',
-    justifyContent: 'center',
-    marginTop: '15px'
   },
   error: {
     color: '#FF647C',
@@ -60,31 +41,23 @@ const useStyles = makeStyles(() => ({
     color: '#FF647C',
     fontSize: '20px'
   },
-  form: {
-    width: '100%'
-  },
-  dataContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignContent: 'center',
-    justifyContent: 'space-between',
-    padding: '30px 20px',
-    width: '100%'
-  },
-  dataOverviewContainer: {
+  errorContainer: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     minWidth: '220px',
     marginRight: '25px'
   },
-  dataRespContainer: {
-    overflowX: 'scroll',
-    padding: '10px',
-    flexGrow: 2
+  form: {
+    width: '100%'
   },
   mainContainer: {
     paddingTop: '15px'
+  },
+  submitButton: {
+    width: '300px',
+    marginTop: '10px',
+    marginBottom: '20px'
   }
 }))
 
@@ -182,7 +155,7 @@ export default () => {
                     size='large'
                     variant='contained'
                     color='primary'
-                    className={classes.button}
+                    className={classes.submitButton}
                   >
                     Decode Transaction
                   </Button>
@@ -195,7 +168,7 @@ export default () => {
           <>
             <Divider variant='middle' />
             <Box className={classes.box}>
-              <div className={classes.dataOverviewContainer}>
+              <div className={classes.errorContainer}>
                 <ErrorIcon className={classes.errorIcon} />
                 <Typography variant='h6' className={classes.errorText}>
                   Input is not a valid Ethereum transaction hash or raw transaction hex!
@@ -205,75 +178,15 @@ export default () => {
           </>
         )}
         {txOverview && (
-          <>
-            <Divider variant='middle' />
-            <Box className={classes.box}>
-              <div className={classes.dataContainer}>
-                <div className={classes.dataOverviewContainer}>
-                  <Typography variant='h6'>Tx Overview</Typography>
-                  <CopyToClipboard
-                    onCopy={() => setIsDataCopied(true)}
-                    text={JSON.stringify(txOverview)}
-                  >
-                    <Button color='secondary' className={classes.copyButton} variant='contained'>
-                      Copy Data
-                    </Button>
-                  </CopyToClipboard>
-                </div>
-                <Paper className={classes.dataRespContainer}>
-                  <pre>{JSON.stringify(txOverview, 0, 2)}</pre>
-                </Paper>
-              </div>
-            </Box>
-          </>
+          <DataSection data={txOverview} setIsDataCopied={setIsDataCopied} title='Tx Overview' />
         )}
-        {txHex && (
-          <>
-            <Divider variant='middle' />
-            <Box className={classes.box}>
-              <div className={classes.dataContainer}>
-                <div className={classes.dataOverviewContainer}>
-                  <Typography variant='h6'>Raw Tx Hex</Typography>
-                  <CopyToClipboard
-                    onCopy={() => setIsDataCopied(true)}
-                    text={JSON.stringify(txHex)}
-                  >
-                    <Button color='secondary' className={classes.copyButton} variant='contained'>
-                      Copy Data
-                    </Button>
-                  </CopyToClipboard>
-                </div>
-                <Paper className={classes.dataRespContainer}>
-                  <pre>{JSON.stringify(txHex, 0, 2)}</pre>
-                </Paper>
-              </div>
-            </Box>
-          </>
-        )}
+        {txHex && <DataSection data={txHex} setIsDataCopied={setIsDataCopied} title='Raw Tx Hex' />}
         {decodedTx && (
-          <>
-            <Divider variant='middle' />
-            <Box className={classes.box}>
-              <div className={classes.dataContainer}>
-                <div className={classes.dataOverviewContainer}>
-                  <Typography variant='h6'>Raw Tx Hex Decoded</Typography>
-                  {decodedTx.tx && (
-                    <CopyToClipboard
-                      onCopy={() => setIsDataCopied(true)}
-                      text={JSON.stringify(decodedTx.tx)}
-                    >
-                      <Button color='secondary' className={classes.copyButton} variant='contained'>
-                        Copy Data
-                      </Button>
-                    </CopyToClipboard>
-                  )}
-                </div>
-                <Paper className={classes.dataRespContainer}>
-                  <pre>{JSON.stringify(decodedTx.tx ? decodedTx.tx : decodedTx, 0, 2)}</pre>
-                </Paper>
-              </div>
-            </Box>
-          </>
+          <DataSection
+            data={decodedTx.tx ? decodedTx.tx : decodedTx}
+            setIsDataCopied={setIsDataCopied}
+            title='Raw Tx Hex Decoded'
+          />
         )}
       </Container>
       <Alerts
