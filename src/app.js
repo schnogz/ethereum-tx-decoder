@@ -5,6 +5,7 @@ import QRCode from 'qrcode.react'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
 import Brightness7Icon from '@material-ui/icons/Brightness7'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import ErrorIcon from '@material-ui/icons/Error'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   AppBar,
@@ -53,6 +54,15 @@ const useStyles = makeStyles(theme => ({
     color: '#FF647C',
     fontSize: '11px',
     marginTop: '-4px'
+  },
+  errorIcon: {
+    color: '#FF647C',
+    fontSize: '50px',
+    margin: '10px auto 5px'
+  },
+  errorText: {
+    color: '#FF647C',
+    fontSize: '20px'
   },
   form: {
     width: '100%'
@@ -234,11 +244,12 @@ export default () => {
           <>
             <Divider variant='middle' />
             <Box className={classes.box}>
-              <Paper>
-                <pre>
-                  {JSON.stringify({ error: 'Input is not ETH tx hash or raw tx hex' }, 0, 2)}
-                </pre>
-              </Paper>
+              <div className={classes.dataOverviewContainer}>
+                <ErrorIcon className={classes.errorIcon} />
+                <Typography variant='h6' className={classes.errorText}>
+                  Input is not a valid Ethereum transaction hash or raw transaction hex!
+                </Typography>
+              </div>
             </Box>
           </>
         )}
