@@ -38,6 +38,7 @@
     "ethers": "4.0.39",
     "final-form": "4.18.6",
     "qrcode.react": "1.0.0",
+    "query-string": "^6.9.0",
     "ramda": "0.26.1",
     "react": "16.12.0",
     "react-copy-to-clipboard": "^5.0.2",

@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Field, Form } from 'react-final-form'
+import queryString from 'query-string'
 
 import ErrorIcon from '@material-ui/icons/Error'
 import { makeStyles } from '@material-ui/core/styles'
@@ -66,6 +67,7 @@ const composeValidators = (...validators) => value =>
 
 export default () => {
   const classes = useStyles()
+  const [searchInput, setSearchInput] = useState('')
   const [unrecognizedInput, setUnrecognizedInput] = useState(false)
   const [txOverview, setTxOverview] = useState(null)
   const [txHex, setTxHex] = useState(null)
@@ -76,18 +78,27 @@ export default () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const ethDonateAddr = '0xb3AfF6C7d10BdD704E3B44f74974208C34BAD7de'
 
+  // check query string for search
+  useEffect(() => {
+    const { search } = queryString.parse(window.location.search)
+    if (search && searchInput !== search) {
+      onSubmit({ search })
+    }
+  })
+
   const onSubmit = values => {
+    setSearchInput(values.search)
     setUnrecognizedInput(false)
     setTx(null)
     setTxHex(null)
     setTxOverview(null)
-    fetchEthTxByHash(values.rawTxOrTxHex)
+    fetchEthTxByHash(values.search)
       .then(res => {
         res.json().then(data => {
           // check for valid tx hash
           if (data.error) {
             // invalid tx hash
-            const txHex = decodeEthHexTx(values.rawTxOrTxHex)
+            const txHex = decodeEthHexTx(values.search)
             if (txHex.error) {
               // invalid tx hash and tx hex
               return setUnrecognizedInput(true)
@@ -96,7 +107,7 @@ export default () => {
               setTxHex({
                 error: 'ETH transaction hash not detected'
               })
-              setTx(decodeEthHexTx(values.rawTxOrTxHex))
+              setTx(decodeEthHexTx(values.search))
             }
           } else {
             // valid tx hash
@@ -111,6 +122,10 @@ export default () => {
         setTxHex(null)
         setTx(null)
       })
+
+    // update url
+    const url = window.location.origin + `?search=${values.search}`
+    window.history.pushState({ path: url }, '', url)
   }
   return (
     <MuiThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
@@ -122,12 +137,15 @@ export default () => {
       />
       <Container className={classes.mainContainer} maxWidth='lg'>
         <Form
+          initialValues={{
+            search: searchInput
+          }}
           onSubmit={onSubmit}
           render={({ handleSubmit, submitting, valid }) => (
             <Box className={classes.box}>
-              <form onSubmit={handleSubmit} className={classes.form}>
+              <form onSubmit={handleSubmit} className={classes.form} id='form'>
                 <Field
-                  name='rawTxOrTxHex'
+                  name='search'
                   validate={composeValidators(value => (value ? undefined : '* Required Field'))}
                 >
                   {({ input, meta }) => (
@@ -139,6 +157,7 @@ export default () => {
                         placeholder='Enter Ethereum Tx Hash or Raw Tx Hex'
                         margin='normal'
                         variant='outlined'
+                        id='test'
                       />
                       {meta.error && meta.touched && (
                         <div className={classes.error} color='error'>
